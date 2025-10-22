@@ -35,8 +35,7 @@ export enum ContentType {
 export enum ContentStatus {
   DRAFT = "draft",
   PUBLISHED = "published",
-  MODERATION = "moderation",
-  REJECTED = "rejected",
+  BLOCKED = "blocked", // Заблокирован модератором
 }
 
 export interface Content {
@@ -55,6 +54,44 @@ export interface Content {
   createdAt: string;
   updatedAt: string;
   publishedAt?: string;
+  blockedAt?: string;
+  blockedReason?: string;
+}
+
+// Report types (система жалоб)
+export enum ReportReason {
+  SPAM = "spam",
+  PORNOGRAPHY = "pornography",
+  VIOLENCE = "violence",
+  TERRORISM = "terrorism",
+  HATE_SPEECH = "hate_speech",
+  COPYRIGHT = "copyright",
+  MISINFORMATION = "misinformation",
+  OTHER = "other",
+}
+
+export enum ReportStatus {
+  PENDING = "pending",
+  REVIEWING = "reviewing",
+  RESOLVED = "resolved",
+  REJECTED = "rejected",
+}
+
+export interface ContentReport {
+  id: string;
+  contentId: string;
+  content?: Content;
+  reporterId: string;
+  reporter?: User;
+  reason: ReportReason;
+  description?: string;
+  status: ReportStatus;
+  reviewerId?: string;
+  reviewer?: User;
+  resolution?: string;
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string;
 }
 
 // Subscription types
