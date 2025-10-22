@@ -179,22 +179,69 @@ export interface Task {
 }
 
 // Chat types
+export enum SupportTicketStatus {
+  OPEN = "open",
+  IN_PROGRESS = "in_progress",
+  WAITING_USER = "waiting_user",
+  RESOLVED = "resolved",
+  CLOSED = "closed",
+}
+
+export enum SupportTicketPriority {
+  LOW = "low",
+  MEDIUM = "medium",
+  HIGH = "high",
+  URGENT = "urgent",
+}
+
+export enum SupportTicketCategory {
+  TECHNICAL = "technical",
+  PAYMENT = "payment",
+  CONTENT = "content",
+  SUBSCRIPTION = "subscription",
+  ACCOUNT = "account",
+  OTHER = "other",
+}
+
 export interface ChatMessage {
   id: string;
+  conversationId: string;
   senderId: string;
   sender?: User;
-  recipientId: string;
-  recipient?: User;
   content: string;
+  attachments?: string[];
   isRead: boolean;
   createdAt: string;
+  updatedAt: string;
+}
+
+export interface SupportTicket {
+  id: string;
+  ticketNumber: string;
+  userId: string;
+  user?: User;
+  subject: string;
+  category: SupportTicketCategory;
+  priority: SupportTicketPriority;
+  status: SupportTicketStatus;
+  assignedToId?: string;
+  assignedTo?: User;
+  messagesCount: number;
+  lastMessageAt: string;
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string;
 }
 
 export interface ChatConversation {
   id: string;
+  ticketId?: string;
+  ticket?: SupportTicket;
   participants: User[];
+  messages: ChatMessage[];
   lastMessage?: ChatMessage;
   unreadCount: number;
+  createdAt: string;
   updatedAt: string;
 }
 
