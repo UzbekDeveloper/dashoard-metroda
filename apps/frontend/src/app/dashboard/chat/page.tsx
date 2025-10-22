@@ -4,25 +4,24 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Search,
-  Filter,
   Send,
   Paperclip,
+  Phone,
+  Video,
   MoreVertical,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  XCircle,
-  User,
-  MessageSquare,
+  Hash,
+  Lock,
+  Users,
+  Plus,
+  Settings,
+  Archive,
+  Star,
+  Pin,
+  Smile,
+  AtSign,
 } from "lucide-react";
 import {
   SupportTicket,
@@ -31,10 +30,131 @@ import {
   SupportTicketCategory,
   ChatMessage,
   UserRole,
+  TeamMember,
+  Channel,
+  Department,
+  OnlineStatus,
 } from "@/types";
 import { cn } from "@/lib/utils";
 
-// Mock data
+// Mock team members data
+const mockTeamMembers: TeamMember[] = [
+  {
+    id: "tm1",
+    email: "admin@metroda.uz",
+    username: "admin",
+    fullName: "Администратор",
+    role: UserRole.ADMIN,
+    status: "active" as any,
+    department: Department.MANAGEMENT,
+    position: "CEO",
+    onlineStatus: OnlineStatus.ONLINE,
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "tm2",
+    email: "bekzod@metroda.uz",
+    username: "bekzod_dev",
+    fullName: "Бекзод Каримов",
+    role: UserRole.ADMIN,
+    status: "active" as any,
+    department: Department.DEVELOPMENT,
+    position: "Senior Developer",
+    onlineStatus: OnlineStatus.ONLINE,
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "tm3",
+    email: "malika@metroda.uz",
+    username: "malika_support",
+    fullName: "Малика Азимова",
+    role: UserRole.MODERATOR,
+    status: "active" as any,
+    department: Department.SUPPORT,
+    position: "Support Lead",
+    onlineStatus: OnlineStatus.AWAY,
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "tm4",
+    email: "sardor@metroda.uz",
+    username: "sardor_mod",
+    fullName: "Сардор Усманов",
+    role: UserRole.MODERATOR,
+    status: "active" as any,
+    department: Department.MODERATION,
+    position: "Content Moderator",
+    onlineStatus: OnlineStatus.BUSY,
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "tm5",
+    email: "dilnoza@metroda.uz",
+    username: "dilnoza_marketing",
+    fullName: "Дильноза Рахимова",
+    role: UserRole.ADMIN,
+    status: "active" as any,
+    department: Department.MARKETING,
+    position: "Marketing Manager",
+    onlineStatus: OnlineStatus.OFFLINE,
+    lastSeen: "2024-10-22T15:00:00Z",
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z",
+  },
+];
+
+// Mock channels
+const mockChannels: Channel[] = [
+  {
+    id: "ch1",
+    name: "general",
+    description: "Общий канал для всей команды",
+    isPrivate: false,
+    members: mockTeamMembers,
+    unreadCount: 3,
+    lastMessageAt: "2024-10-22T14:30:00Z",
+    createdAt: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "ch2",
+    name: "development",
+    description: "Обсуждение разработки",
+    department: Department.DEVELOPMENT,
+    isPrivate: false,
+    members: mockTeamMembers.filter((m) => m.department === Department.DEVELOPMENT),
+    unreadCount: 0,
+    lastMessageAt: "2024-10-22T12:00:00Z",
+    createdAt: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "ch3",
+    name: "support-team",
+    description: "Команда поддержки",
+    department: Department.SUPPORT,
+    isPrivate: true,
+    members: mockTeamMembers.filter((m) => m.department === Department.SUPPORT),
+    unreadCount: 7,
+    lastMessageAt: "2024-10-22T14:00:00Z",
+    createdAt: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "ch4",
+    name: "moderation",
+    description: "Модерация контента",
+    department: Department.MODERATION,
+    isPrivate: true,
+    members: mockTeamMembers.filter((m) => m.department === Department.MODERATION),
+    unreadCount: 2,
+    lastMessageAt: "2024-10-22T13:30:00Z",
+    createdAt: "2024-01-01T00:00:00Z",
+  },
+];
+
+// Mock support tickets
 const mockTickets: SupportTicket[] = [
   {
     id: "1",
@@ -77,7 +197,7 @@ const mockTickets: SupportTicket[] = [
     category: SupportTicketCategory.TECHNICAL,
     priority: SupportTicketPriority.MEDIUM,
     status: SupportTicketStatus.IN_PROGRESS,
-    assignedToId: "admin1",
+    assignedToId: "tm3",
     messagesCount: 8,
     lastMessageAt: "2024-10-22T12:15:00Z",
     createdAt: "2024-10-21T15:00:00Z",
@@ -101,515 +221,491 @@ const mockTickets: SupportTicket[] = [
     category: SupportTicketCategory.SUBSCRIPTION,
     priority: SupportTicketPriority.LOW,
     status: SupportTicketStatus.WAITING_USER,
-    assignedToId: "admin1",
+    assignedToId: "tm3",
     messagesCount: 5,
     lastMessageAt: "2024-10-22T09:00:00Z",
     createdAt: "2024-10-21T08:00:00Z",
     updatedAt: "2024-10-22T09:00:00Z",
   },
-  {
-    id: "4",
-    ticketNumber: "TKT-1004",
-    userId: "u4",
-    user: {
-      id: "u4",
-      email: "madina@example.com",
-      username: "madina_writes",
-      fullName: "Мадина Азимова",
-      role: UserRole.AUTHOR,
-      status: "active" as any,
-      createdAt: "2024-10-17T13:00:00Z",
-      updatedAt: "2024-10-17T13:00:00Z",
-    },
-    subject: "Проблема с выплатами",
-    category: SupportTicketCategory.PAYMENT,
-    priority: SupportTicketPriority.URGENT,
-    status: SupportTicketStatus.OPEN,
-    messagesCount: 2,
-    lastMessageAt: "2024-10-22T13:45:00Z",
-    createdAt: "2024-10-22T13:00:00Z",
-    updatedAt: "2024-10-22T13:45:00Z",
-  },
-  {
-    id: "5",
-    ticketNumber: "TKT-1005",
-    userId: "u5",
-    user: {
-      id: "u5",
-      email: "otabek@example.com",
-      username: "otabek_tech",
-      fullName: "Отабек Тошматов",
-      role: UserRole.USER,
-      status: "active" as any,
-      createdAt: "2024-10-15T16:00:00Z",
-      updatedAt: "2024-10-15T16:00:00Z",
-    },
-    subject: "Не приходят уведомления",
-    category: SupportTicketCategory.TECHNICAL,
-    priority: SupportTicketPriority.MEDIUM,
-    status: SupportTicketStatus.RESOLVED,
-    assignedToId: "admin2",
-    messagesCount: 6,
-    lastMessageAt: "2024-10-21T17:00:00Z",
-    createdAt: "2024-10-20T10:00:00Z",
-    updatedAt: "2024-10-21T17:00:00Z",
-    resolvedAt: "2024-10-21T17:00:00Z",
-  },
 ];
 
-const mockMessages: Record<string, ChatMessage[]> = {
+// Mock messages for general channel
+const mockChannelMessages: Record<string, ChatMessage[]> = {
+  ch1: [
+    {
+      id: "msg1",
+      conversationId: "ch1",
+      senderId: "tm1",
+      sender: mockTeamMembers[0],
+      content: "Доброе утро, команда! Сегодня у нас важная встреча в 15:00",
+      isRead: true,
+      createdAt: "2024-10-22T09:00:00Z",
+      updatedAt: "2024-10-22T09:00:00Z",
+    },
+    {
+      id: "msg2",
+      conversationId: "ch1",
+      senderId: "tm2",
+      sender: mockTeamMembers[1],
+      content: "Доброе утро! Будем обсуждать новый функционал?",
+      isRead: true,
+      createdAt: "2024-10-22T09:05:00Z",
+      updatedAt: "2024-10-22T09:05:00Z",
+    },
+    {
+      id: "msg3",
+      conversationId: "ch1",
+      senderId: "tm3",
+      sender: mockTeamMembers[2],
+      content: "Привет всем! Да, и также обсудим статистику по тикетам за неделю",
+      isRead: true,
+      createdAt: "2024-10-22T09:10:00Z",
+      updatedAt: "2024-10-22T09:10:00Z",
+    },
+    {
+      id: "msg4",
+      conversationId: "ch1",
+      senderId: "tm1",
+      sender: mockTeamMembers[0],
+      content: "Отлично! Не забудьте подготовить отчёты",
+      isRead: false,
+      createdAt: "2024-10-22T14:30:00Z",
+      updatedAt: "2024-10-22T14:30:00Z",
+    },
+  ],
+};
+
+// Mock messages for tickets
+const mockTicketMessages: Record<string, ChatMessage[]> = {
   "1": [
     {
-      id: "m1",
+      id: "t1m1",
       conversationId: "1",
       senderId: "u1",
-      sender: mockTickets[0].user,
-      content:
-        "Здравствуйте! Я пытаюсь оплатить подписку через Payme, но постоянно получаю ошибку. Помогите пожалуйста!",
+      content: "Здравствуйте! Я пытаюсь оплатить подписку через Payme, но постоянно получаю ошибку. Помогите пожалуйста!",
       isRead: true,
       createdAt: "2024-10-22T10:05:00Z",
       updatedAt: "2024-10-22T10:05:00Z",
     },
     {
-      id: "m2",
+      id: "t1m2",
       conversationId: "1",
-      senderId: "admin1",
-      content:
-        "Здравствуйте, Алишер! Подскажите пожалуйста, какую именно ошибку вы видите? Можете прислать скриншот?",
+      senderId: "tm3",
+      sender: mockTeamMembers[2],
+      content: "Здравствуйте, Алишер! Подскажите пожалуйста, какую именно ошибку вы видите? Можете прислать скриншот?",
       isRead: true,
       createdAt: "2024-10-22T11:00:00Z",
       updatedAt: "2024-10-22T11:00:00Z",
     },
     {
-      id: "m3",
+      id: "t1m3",
       conversationId: "1",
       senderId: "u1",
-      sender: mockTickets[0].user,
       content: 'Ошибка такая: "Транзакция отклонена банком". Что это значит?',
-      isRead: true,
+      isRead: false,
       createdAt: "2024-10-22T14:30:00Z",
       updatedAt: "2024-10-22T14:30:00Z",
     },
   ],
-  "2": [
-    {
-      id: "m4",
-      conversationId: "2",
-      senderId: "u2",
-      sender: mockTickets[1].user,
-      content:
-        "Добрый день! Я автор и хочу начать загружать видео контент. Подскажите как это сделать?",
-      isRead: true,
-      createdAt: "2024-10-21T15:05:00Z",
-      updatedAt: "2024-10-21T15:05:00Z",
-    },
-    {
-      id: "m5",
-      conversationId: "2",
-      senderId: "admin1",
-      content:
-        "Здравствуйте! Для загрузки видео перейдите в раздел 'Мой контент' → 'Загрузить' → выберите тип 'Видео'. Максимальный размер файла - 500 МБ.",
-      isRead: true,
-      createdAt: "2024-10-21T16:00:00Z",
-      updatedAt: "2024-10-21T16:00:00Z",
-    },
-    {
-      id: "m6",
-      conversationId: "2",
-      senderId: "u2",
-      sender: mockTickets[1].user,
-      content: "Спасибо! А какие форматы видео поддерживаются?",
-      isRead: true,
-      createdAt: "2024-10-22T12:15:00Z",
-      updatedAt: "2024-10-22T12:15:00Z",
-    },
-  ],
 };
 
-const getStatusIcon = (status: SupportTicketStatus) => {
+const getOnlineStatusColor = (status: OnlineStatus) => {
   switch (status) {
-    case SupportTicketStatus.OPEN:
-      return <AlertCircle className="h-4 w-4" />;
-    case SupportTicketStatus.IN_PROGRESS:
-      return <Clock className="h-4 w-4" />;
-    case SupportTicketStatus.WAITING_USER:
-      return <MessageSquare className="h-4 w-4" />;
-    case SupportTicketStatus.RESOLVED:
-      return <CheckCircle2 className="h-4 w-4" />;
-    case SupportTicketStatus.CLOSED:
-      return <XCircle className="h-4 w-4" />;
+    case OnlineStatus.ONLINE:
+      return "bg-green-500";
+    case OnlineStatus.AWAY:
+      return "bg-yellow-500";
+    case OnlineStatus.BUSY:
+      return "bg-red-500";
+    case OnlineStatus.OFFLINE:
+      return "bg-gray-400";
   }
 };
 
-const getStatusBadge = (status: SupportTicketStatus) => {
-  const config = {
-    [SupportTicketStatus.OPEN]: {
-      variant: "destructive" as const,
-      label: "Открыт",
-    },
-    [SupportTicketStatus.IN_PROGRESS]: {
-      variant: "info" as const,
-      label: "В работе",
-    },
-    [SupportTicketStatus.WAITING_USER]: {
-      variant: "warning" as const,
-      label: "Ждём ответа",
-    },
-    [SupportTicketStatus.RESOLVED]: {
-      variant: "success" as const,
-      label: "Решён",
-    },
-    [SupportTicketStatus.CLOSED]: { variant: "muted" as const, label: "Закрыт" },
-  };
-
-  const { variant, label } = config[status];
-
-  return (
-    <Badge variant={variant} className="gap-1">
-      {getStatusIcon(status)}
-      {label}
-    </Badge>
-  );
-};
-
-const getPriorityBadge = (priority: SupportTicketPriority) => {
-  const config = {
-    [SupportTicketPriority.URGENT]: {
-      variant: "destructive" as const,
-      label: "Срочно",
-    },
-    [SupportTicketPriority.HIGH]: { variant: "warning" as const, label: "Высокий" },
-    [SupportTicketPriority.MEDIUM]: { variant: "info" as const, label: "Средний" },
-    [SupportTicketPriority.LOW]: { variant: "muted" as const, label: "Низкий" },
-  };
-
-  const { variant, label } = config[priority];
-
-  return <Badge variant={variant}>{label}</Badge>;
-};
-
-const getCategoryLabel = (category: SupportTicketCategory) => {
+const getDepartmentLabel = (dept: Department) => {
   const labels = {
-    [SupportTicketCategory.TECHNICAL]: "Технические",
-    [SupportTicketCategory.PAYMENT]: "Оплата",
-    [SupportTicketCategory.CONTENT]: "Контент",
-    [SupportTicketCategory.SUBSCRIPTION]: "Подписки",
-    [SupportTicketCategory.ACCOUNT]: "Аккаунт",
-    [SupportTicketCategory.OTHER]: "Другое",
+    [Department.DEVELOPMENT]: "Разработка",
+    [Department.SUPPORT]: "Поддержка",
+    [Department.MODERATION]: "Модерация",
+    [Department.MARKETING]: "Маркетинг",
+    [Department.MANAGEMENT]: "Управление",
   };
+  return labels[dept];
+};
 
-  return labels[category];
+const getPriorityColor = (priority: SupportTicketPriority) => {
+  switch (priority) {
+    case SupportTicketPriority.URGENT:
+      return "text-red-600";
+    case SupportTicketPriority.HIGH:
+      return "text-orange-600";
+    case SupportTicketPriority.MEDIUM:
+      return "text-blue-600";
+    case SupportTicketPriority.LOW:
+      return "text-gray-600";
+  }
 };
 
 export default function ChatPage() {
-  const [tickets] = useState<SupportTicket[]>(mockTickets);
+  const [activeTab, setActiveTab] = useState<"support" | "team">("team");
+  const [selectedChannel, setSelectedChannel] = useState<Channel | null>(
+    mockChannels[0]
+  );
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(
-    mockTickets[0]
+    null
   );
   const [messageInput, setMessageInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredTickets = tickets.filter(
-    (ticket) =>
-      ticket.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.ticketNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.user?.fullName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const selectedMessages = selectedTicket
-    ? mockMessages[selectedTicket.id] || []
-    : [];
+  const currentMessages =
+    activeTab === "team"
+      ? selectedChannel
+        ? mockChannelMessages[selectedChannel.id] || []
+        : []
+      : selectedTicket
+      ? mockTicketMessages[selectedTicket.id] || []
+      : [];
 
   const handleSendMessage = () => {
-    if (!messageInput.trim() || !selectedTicket) return;
-    // В реальности здесь будет API запрос
+    if (!messageInput.trim()) return;
+    // API call here
     setMessageInput("");
   };
 
-  const stats = {
-    total: tickets.length,
-    open: tickets.filter((t) => t.status === SupportTicketStatus.OPEN).length,
-    inProgress: tickets.filter(
-      (t) => t.status === SupportTicketStatus.IN_PROGRESS
-    ).length,
-    resolved: tickets.filter((t) => t.status === SupportTicketStatus.RESOLVED)
-      .length,
-  };
-
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Поддержка</h1>
-          <p className="text-muted-foreground">
-            Управление обращениями пользователей
-          </p>
+    <div className="flex h-[calc(100vh-4rem)] bg-background">
+      {/* Sidebar */}
+      <div className="w-64 border-r bg-muted/30 flex flex-col">
+        {/* Header */}
+        <div className="p-4 border-b bg-card">
+          <h2 className="font-bold text-lg mb-3">Мессенджер</h2>
+          <Tabs defaultValue={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+            <TabsList className="w-full grid grid-cols-2">
+              <TabsTrigger value="team" active={activeTab === "team"}>
+                Команда
+              </TabsTrigger>
+              <TabsTrigger value="support" active={activeTab === "support"}>
+                Поддержка
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
-      </div>
 
-      {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Всего тикетов
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-        <Card className="border-destructive bg-destructive/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-destructive">
-              Открытые
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">
-              {stats.open}
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-info bg-info/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-info">
-              В работе
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-info">
-              {stats.inProgress}
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-success bg-success/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-success">
-              Решённые
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">
-              {stats.resolved}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        {/* Search */}
+        <div className="p-3 border-b bg-card">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Поиск..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 h-9"
+            />
+          </div>
+        </div>
 
-      {/* Main Chat Interface */}
-      <div className="grid gap-4 lg:grid-cols-3">
-        {/* Tickets List */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle>Тикеты</CardTitle>
-            <CardDescription>
-              Список обращений в техническую поддержку
-            </CardDescription>
-            <div className="flex gap-2 pt-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Поиск..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          {activeTab === "team" ? (
+            <div className="p-2">
+              {/* Channels */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between px-3 py-2">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase">
+                    Каналы
+                  </span>
+                  <Button variant="ghost" size="icon" className="h-5 w-5">
+                    <Plus className="h-3 w-3" />
+                  </Button>
+                </div>
+                <div className="space-y-0.5">
+                  {mockChannels.map((channel) => (
+                    <button
+                      key={channel.id}
+                      onClick={() => setSelectedChannel(channel)}
+                      className={cn(
+                        "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors",
+                        selectedChannel?.id === channel.id
+                          ? "bg-primary/10 text-primary font-medium"
+                          : "hover:bg-muted text-muted-foreground"
+                      )}
+                    >
+                      {channel.isPrivate ? (
+                        <Lock className="h-4 w-4 shrink-0" />
+                      ) : (
+                        <Hash className="h-4 w-4 shrink-0" />
+                      )}
+                      <span className="flex-1 text-left truncate">
+                        {channel.name}
+                      </span>
+                      {channel.unreadCount > 0 && (
+                        <Badge
+                          variant="destructive"
+                          className="h-5 min-w-5 px-1 text-xs"
+                        >
+                          {channel.unreadCount}
+                        </Badge>
+                      )}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <Button variant="outline" size="icon">
-                <Filter className="h-4 w-4" />
-              </Button>
+
+              {/* Team Members */}
+              <div>
+                <div className="flex items-center justify-between px-3 py-2">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase">
+                    Команда ({mockTeamMembers.filter((m) => m.onlineStatus === OnlineStatus.ONLINE).length} онлайн)
+                  </span>
+                </div>
+                <div className="space-y-0.5">
+                  {mockTeamMembers.map((member) => (
+                    <button
+                      key={member.id}
+                      className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors hover:bg-muted"
+                    >
+                      <div className="relative">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-semibold">
+                          {member.fullName.charAt(0)}
+                        </div>
+                        <div
+                          className={cn(
+                            "absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background",
+                            getOnlineStatusColor(member.onlineStatus)
+                          )}
+                        />
+                      </div>
+                      <div className="flex-1 text-left min-w-0">
+                        <div className="font-medium truncate">
+                          {member.fullName}
+                        </div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          {member.position}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="max-h-[600px] overflow-y-auto">
-              {filteredTickets.map((ticket) => (
+          ) : (
+            <div className="space-y-0.5 p-2">
+              {mockTickets.map((ticket) => (
                 <button
                   key={ticket.id}
                   onClick={() => setSelectedTicket(ticket)}
                   className={cn(
-                    "w-full border-b p-4 text-left transition-colors hover:bg-muted/50",
-                    selectedTicket?.id === ticket.id && "bg-muted"
+                    "w-full p-3 rounded-md text-left transition-colors",
+                    selectedTicket?.id === ticket.id
+                      ? "bg-primary/10"
+                      : "hover:bg-muted"
                   )}
                 >
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-mono text-muted-foreground">
-                            {ticket.ticketNumber}
-                          </span>
-                          {getPriorityBadge(ticket.priority)}
-                        </div>
-                        <p className="font-medium text-sm line-clamp-1">
-                          {ticket.subject}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <User className="h-3 w-3" />
-                      <span className="truncate">{ticket.user?.fullName}</span>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-2">
-                      {getStatusBadge(ticket.status)}
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(ticket.lastMessageAt).toLocaleDateString(
-                          "ru-RU",
-                          {
-                            day: "numeric",
-                            month: "short",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )}
-                      </span>
-                    </div>
+                  <div className="flex items-start gap-2 mb-1">
+                    <span className="text-xs font-mono text-muted-foreground">
+                      {ticket.ticketNumber}
+                    </span>
+                    <span className={cn("text-xs font-semibold", getPriorityColor(ticket.priority))}>
+                      •
+                    </span>
+                  </div>
+                  <p className="font-medium text-sm line-clamp-2 mb-1">
+                    {ticket.subject}
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>{ticket.user?.fullName}</span>
+                    <span>•</span>
+                    <span>{ticket.messagesCount} сообщений</span>
                   </div>
                 </button>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          )}
+        </div>
+      </div>
 
-        {/* Chat Window */}
-        <Card className="lg:col-span-2">
-          {selectedTicket ? (
-            <>
-              <CardHeader className="border-b">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <CardTitle className="text-lg">
-                        {selectedTicket.ticketNumber}
-                      </CardTitle>
-                      {getStatusBadge(selectedTicket.status)}
-                      {getPriorityBadge(selectedTicket.priority)}
-                    </div>
-                    <CardDescription className="text-base font-medium text-foreground">
-                      {selectedTicket.subject}
-                    </CardDescription>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <User className="h-3 w-3" />
-                        {selectedTicket.user?.fullName}
-                      </div>
-                      <div>
-                        Категория: {getCategoryLabel(selectedTicket.category)}
-                      </div>
-                      <div>Сообщений: {selectedTicket.messagesCount}</div>
-                    </div>
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Chat Header */}
+        {(selectedChannel || selectedTicket) && (
+          <div className="h-16 border-b bg-card px-6 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {activeTab === "team" && selectedChannel && (
+                <>
+                  {selectedChannel.isPrivate ? (
+                    <Lock className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <Hash className="h-5 w-5 text-muted-foreground" />
+                  )}
+                  <div>
+                    <h3 className="font-semibold">{selectedChannel.name}</h3>
+                    {selectedChannel.description && (
+                      <p className="text-xs text-muted-foreground">
+                        {selectedChannel.description}
+                      </p>
+                    )}
                   </div>
+                </>
+              )}
+              {activeTab === "support" && selectedTicket && (
+                <>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold">
+                    {selectedTicket.user?.fullName.charAt(0)}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold flex items-center gap-2">
+                      {selectedTicket.user?.fullName}
+                      <span className="text-xs font-mono text-muted-foreground">
+                        {selectedTicket.ticketNumber}
+                      </span>
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {selectedTicket.subject}
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {activeTab === "team" && (
+                <>
                   <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-4 w-4" />
+                    <Phone className="h-4 w-4" />
                   </Button>
-                </div>
-              </CardHeader>
+                  <Button variant="ghost" size="icon">
+                    <Video className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon">
+                    <Users className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+              <Button variant="ghost" size="icon">
+                <Star className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
 
-              {/* Messages */}
-              <CardContent className="p-4">
-                <div className="space-y-4 max-h-[400px] overflow-y-auto mb-4">
-                  {selectedMessages.map((message) => {
-                    const isAdmin = message.senderId.startsWith("admin");
-                    return (
-                      <div
-                        key={message.id}
-                        className={cn(
-                          "flex gap-3",
-                          isAdmin ? "flex-row-reverse" : "flex-row"
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
-                            isAdmin
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted text-muted-foreground"
-                          )}
-                        >
-                          {isAdmin
-                            ? "A"
-                            : message.sender?.fullName.charAt(0).toUpperCase()}
-                        </div>
-                        <div
-                          className={cn(
-                            "flex-1 space-y-1",
-                            isAdmin ? "items-end" : "items-start"
-                          )}
-                        >
-                          <div
-                            className={cn(
-                              "flex items-center gap-2 text-xs",
-                              isAdmin
-                                ? "flex-row-reverse justify-start"
-                                : "flex-row"
-                            )}
-                          >
-                            <span className="font-medium">
-                              {isAdmin ? "Поддержка" : message.sender?.fullName}
-                            </span>
-                            <span className="text-muted-foreground">
-                              {new Date(message.createdAt).toLocaleString(
-                                "ru-RU",
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                  day: "numeric",
-                                  month: "short",
-                                }
-                              )}
-                            </span>
-                          </div>
-                          <div
-                            className={cn(
-                              "rounded-lg px-4 py-2 text-sm",
-                              isAdmin
-                                ? "bg-primary text-primary-foreground ml-auto max-w-[80%]"
-                                : "bg-muted mr-auto max-w-[80%]"
-                            )}
-                          >
-                            {message.content}
-                          </div>
-                        </div>
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-muted/20">
+          {currentMessages.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center text-muted-foreground">
+                <p className="text-sm">
+                  {activeTab === "team"
+                    ? "Выберите канал для начала общения"
+                    : "Выберите тикет для просмотра"}
+                </p>
+              </div>
+            </div>
+          ) : (
+            currentMessages.map((message, idx) => {
+              const isCurrentUser = message.sender?.role === UserRole.ADMIN;
+              const showAvatar =
+                idx === 0 ||
+                currentMessages[idx - 1].senderId !== message.senderId;
+              const showTimestamp =
+                idx === currentMessages.length - 1 ||
+                currentMessages[idx + 1].senderId !== message.senderId;
+
+              return (
+                <div
+                  key={message.id}
+                  className={cn(
+                    "flex gap-3 group",
+                    !showAvatar && "ml-11"
+                  )}
+                >
+                  {showAvatar ? (
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
+                      {message.sender?.fullName?.charAt(0) || "U"}
+                    </div>
+                  ) : (
+                    <div className="w-10 shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    {showAvatar && (
+                      <div className="flex items-baseline gap-2 mb-1">
+                        <span className="font-semibold text-sm">
+                          {message.sender?.fullName || "Пользователь"}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(message.createdAt).toLocaleTimeString("ru-RU", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
                       </div>
-                    );
-                  })}
+                    )}
+                    <div className="text-sm leading-relaxed break-words">
+                      {message.content}
+                    </div>
+                    {!message.isRead && activeTab === "support" && (
+                      <Badge variant="destructive" className="mt-1 text-xs">
+                        Новое
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-start gap-1">
+                    <Button variant="ghost" size="icon" className="h-7 w-7">
+                      <Smile className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7">
+                      <MoreVertical className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </div>
+              );
+            })
+          )}
+        </div>
 
-                {/* Message Input */}
-                <div className="flex gap-2">
-                  <Button variant="outline" size="icon">
+        {/* Message Input */}
+        {(selectedChannel || selectedTicket) && (
+          <div className="border-t bg-card p-4">
+            <div className="flex items-end gap-3">
+              <Button variant="ghost" size="icon" className="shrink-0">
+                <Plus className="h-5 w-5" />
+              </Button>
+              <div className="flex-1 relative">
+                <Input
+                  placeholder={
+                    activeTab === "team"
+                      ? `Сообщение в #${selectedChannel?.name}`
+                      : "Ответить на тикет..."
+                  }
+                  value={messageInput}
+                  onChange={(e) => setMessageInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
+                  className="pr-20"
+                />
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
                     <Paperclip className="h-4 w-4" />
                   </Button>
-                  <Input
-                    placeholder="Введите сообщение..."
-                    value={messageInput}
-                    onChange={(e) => setMessageInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendMessage();
-                      }
-                    }}
-                  />
-                  <Button onClick={handleSendMessage}>
-                    <Send className="h-4 w-4 mr-2" />
-                    Отправить
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Smile className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <AtSign className="h-4 w-4" />
                   </Button>
                 </div>
-              </CardContent>
-            </>
-          ) : (
-            <CardContent className="flex h-[600px] items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                <p>Выберите тикет для просмотра сообщений</p>
               </div>
-            </CardContent>
-          )}
-        </Card>
+              <Button onClick={handleSendMessage} className="shrink-0">
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

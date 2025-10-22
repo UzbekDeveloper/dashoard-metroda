@@ -203,6 +203,21 @@ export enum SupportTicketCategory {
   OTHER = "other",
 }
 
+export enum Department {
+  DEVELOPMENT = "development",
+  SUPPORT = "support",
+  MODERATION = "moderation",
+  MARKETING = "marketing",
+  MANAGEMENT = "management",
+}
+
+export enum OnlineStatus {
+  ONLINE = "online",
+  AWAY = "away",
+  BUSY = "busy",
+  OFFLINE = "offline",
+}
+
 export interface ChatMessage {
   id: string;
   conversationId: string;
@@ -233,11 +248,41 @@ export interface SupportTicket {
   resolvedAt?: string;
 }
 
+export interface TeamMember extends User {
+  department: Department;
+  position: string;
+  onlineStatus: OnlineStatus;
+  lastSeen?: string;
+}
+
+export interface Channel {
+  id: string;
+  name: string;
+  description?: string;
+  department?: Department;
+  isPrivate: boolean;
+  members: TeamMember[];
+  unreadCount: number;
+  lastMessageAt?: string;
+  createdAt: string;
+}
+
+export interface DirectMessage {
+  id: string;
+  participants: TeamMember[];
+  unreadCount: number;
+  lastMessageAt: string;
+  createdAt: string;
+}
+
 export interface ChatConversation {
   id: string;
+  type: "ticket" | "channel" | "direct";
   ticketId?: string;
   ticket?: SupportTicket;
-  participants: User[];
+  channelId?: string;
+  channel?: Channel;
+  participants: (User | TeamMember)[];
   messages: ChatMessage[];
   lastMessage?: ChatMessage;
   unreadCount: number;
