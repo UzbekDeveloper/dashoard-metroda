@@ -443,21 +443,19 @@ export default function ContentModerationPage() {
                         </CardTitle>
                       </div>
 
-                      <CardDescription>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-sm">
-                            <User className="h-3 w-3" />
-                            <span className="font-medium">Жалоба:</span>
-                            {report.description}
-                          </div>
-                          {report.content?.description && (
-                            <div className="text-sm text-muted-foreground">
-                              <span className="font-medium">Контент:</span>{" "}
-                              {report.content.description}
-                            </div>
-                          )}
+                      <div className="space-y-1 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <User className="h-3 w-3" />
+                          <span className="font-medium">Жалоба:</span>
+                          {report.description}
                         </div>
-                      </CardDescription>
+                        {report.content?.description && (
+                          <div>
+                            <span className="font-medium">Контент:</span>{" "}
+                            {report.content.description}
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex flex-col items-end gap-2">
